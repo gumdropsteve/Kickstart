@@ -43,7 +43,13 @@ contract Campaign {
     function contribute() public payable {
         require(msg.value > minimumContribution);
         
-        approvers[msg.sender] = true; // only the value true gets stored in the mapping
+        // if address is already a contributor, do nothing else
+        if(approvers[msg.sender]==true) {
+
+        } else { // if address is new contributor, add them to approvers & increase approvers count
+            approvers[msg.sender] = true;
+            approversCount++;
+        }
     }
     
     function createRequest(string description, uint value, address recipient) public purple {
@@ -76,6 +82,22 @@ contract Campaign {
         
         request.recipient.transfer(request.value);
         request.complete = true; // now it is
-        approversCount++;
-    }    
+    }
+
+    // get a summary of this campaign
+    function getSummary() public view returns (
+        uint, uint, uint, uint, address
+        ) {
+        return (
+            minimumContribution,
+            this.balance,
+            requests.length,
+            approversCount,
+            manager
+        );
+    }
+
+    function getRequestCount() public view returns (uint) {
+        return requests.length;
+    }
 }
